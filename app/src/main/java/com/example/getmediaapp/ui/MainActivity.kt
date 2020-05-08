@@ -13,9 +13,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.getmediaapp.R
 import com.example.getmediaapp.utils.RealPathUtils
 import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -69,13 +70,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun uploadFile(realPath: String) {
         val file = File(realPath)
-        val requestFile =  RequestBody.create(
-            MediaType.parse(contentResolver.getType(Uri.parse(realPath))),
-            file
-        )
-        val descripion = "this is the description"
+        val requestFile = file.asRequestBody(contentResolver.getType(Uri.parse(realPath))?.let { it.toMediaTypeOrNull() })
+        val descriptionText = "this is the description"
         val fileBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
-        val description = RequestBody.create(MultipartBody.FORM, descripion)
+        val description = RequestBody.create(MultipartBody.FORM, descriptionText)
         mainViewModel.uploadFile(description, fileBody)
     }
 

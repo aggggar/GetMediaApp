@@ -1,6 +1,6 @@
 package com.example.getmediaapp.api
 
-import com.google.gson.JsonObject
+import com.example.getmediaapp.model.ImageUploadResponse
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -14,5 +14,10 @@ interface ApiInterface {
     @Multipart
     @POST("")
     fun uploadFile(@Part("description") description : RequestBody,
-                   @Part file : MultipartBody.Part) : Call<JsonObject>
+                   @Part file : MultipartBody.Part) : Call<ImageUploadResponse>
+
+    @Multipart
+    @POST("")
+    fun uploadFileRx(@Part("description") description : RequestBody,
+                   @Part file : MultipartBody.Part) : Single<ImageUploadResponse>
 }
