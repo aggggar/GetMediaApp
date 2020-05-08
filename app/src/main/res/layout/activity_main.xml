@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ui.MainActivity">
+
+
+    <TextView
+        android:id="@+id/tvRealPath"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/real_path"
+        android:gravity="center"
+        android:layout_marginBottom="56dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_pick_video"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_pick_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pick_image"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_pick_video"
+        app:layout_constraintEnd_toStartOf="@+id/btn_pick_video"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_pick_video" />
+
+    <Button
+        android:id="@+id/btn_pick_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pick_video"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_pick_audio"
+        app:layout_constraintEnd_toStartOf="@+id/btn_pick_audio"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_pick_image"
+        app:layout_constraintTop_toTopOf="@+id/btn_pick_audio" />
+
+    <Button
+        android:id="@+id/btn_pick_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pick_audio"
+        android:layout_marginBottom="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_pick_video"
+        app:layout_constraintBottom_toTopOf="@+id/btnUploadFile"
+        tools:layout_editor_absoluteY="261dp" />
+
+
+    <Button
+        android:id="@+id/btnUploadFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="228dp"
+        android:text="@string/upload"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
