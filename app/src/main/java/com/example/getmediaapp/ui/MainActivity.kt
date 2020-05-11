@@ -9,9 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,11 +17,9 @@ import com.example.getmediaapp.ui.adapter.ImageAdapter
 import com.example.getmediaapp.utils.Extensions.logE
 import com.example.getmediaapp.utils.Extensions.toast
 import com.example.getmediaapp.utils.RealPathUtils
-import com.example.getmediaapp.utils.showToast
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.recycle_image_item.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -100,6 +95,7 @@ class MainActivity : AppCompatActivity(){
             .setGuidelines(CropImageView.Guidelines.ON)
             .setAspectRatio(1, 1)
             .start(this)
+
 //        val intent = Intent()
 //        intent.type = "image/*"
 //        intent.action = Intent.ACTION_OPEN_DOCUMENT
