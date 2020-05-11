@@ -14,8 +14,9 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.getmediaapp.R
-import com.example.getmediaapp.ui.get_cont.SetCountDialogFragment
+import com.example.getmediaapp.ui.adapter.ImageAdapter
 import com.example.getmediaapp.utils.Extensions.logE
 import com.example.getmediaapp.utils.Extensions.toast
 import com.example.getmediaapp.utils.RealPathUtils
@@ -23,13 +24,14 @@ import com.example.getmediaapp.utils.showToast
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.recycle_image_item.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
-class MainActivity : AppCompatActivity(), SetCountDialogFragment.SetCount{
+class MainActivity : AppCompatActivity(){
 
     companion object {
         private const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123
@@ -40,7 +42,9 @@ class MainActivity : AppCompatActivity(), SetCountDialogFragment.SetCount{
 
     private val TAG = MainActivity::class.simpleName
     private lateinit var mainViewModel : MainViewModel
-    private lateinit var count: String
+    private lateinit var countStr: String
+    private var count: Int = 0
+    private var recyclerImageCount: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,34 +53,30 @@ class MainActivity : AppCompatActivity(), SetCountDialogFragment.SetCount{
         getPermission()
 
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        SetCountDialogFragment().show(supportFragmentManager, "")
-        btnAdd.setOnClickListener {
-            if (!TextUtils.isEmpty(count)) {
-                pickImageIntent()
+        rvImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rvImages.adapter = ImageAdapter()
+
+        btnCount.setOnClickListener {
+            countStr = etCount.text.toString()
+            if (!TextUtils.isEmpty(countStr)){
+                tvSelectedCount.text = "Selected count is : $countStr"
+                count = countStr.toInt()
             } else {
-                toast("Specify count")
+                toast("set count")
             }
         }
-//
-//        btn_pick_video.setOnClickListener {
-//            val intent = Intent()
-//            intent.type = "video/*"
-//            intent.action = Intent.ACTION_OPEN_DOCUMENT
-//            startActivityForResult(/*Intent.createChooser(intent, "Select Video")*/intent , GET_VIDEO_CODE)
-//        }
-//
-//        btn_pick_audio.setOnClickListener {
-//            val intent = Intent()
-//            intent.type = "audio/*"
-//            intent.action = Intent.ACTION_OPEN_DOCUMENT
-//            startActivityForResult(Intent.createChooser(intent, "Select Audio"), GET_AUDIO_CODE)
-//        }
-//
-//        btnUploadFile.setOnClickListener {
-//            if (!TextUtils.isEmpty(tvRealPath.text)){
-//                uploadFile(tvRealPath.text.toString())
-//            }
-//        }
+
+        btnAdd.setOnClickListener {
+            if (count != 0) {
+                if (recyclerImageCount < count) {
+                    pickImageIntent()
+                } else {
+                    toast("Able to select only $countStr")
+                }
+            } else {
+                toast("Specify Count")
+            }
+        }
     }
 
     private fun pickImageIntent() {
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity(), SetCountDialogFragment.SetCount{
         grantResults: IntArray
     ) {
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            "tff".showToast(this)
+
         }
     }
 
@@ -138,25 +138,24 @@ class MainActivity : AppCompatActivity(), SetCountDialogFragment.SetCount{
             }
         }
 
-
         // handle result of CropImageActivity
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
             if (resultCode == Activity.RESULT_OK) {
-                toast("Cropping successful, Sample: " + result.sampleSize)
                 logE(result.uri.toString())
-                val realPath= RealPathUtils.getRealPathFromUri(this, result.uri)
-                logE(realPath.toString())
-
+                val realPath = RealPathUtils.getRealPathFromUri(this, result.uri)
+                realPath?.let {
+                    logE(it)
+                    (rvImages.adapter as ImageAdapter).addToFirst(it)
+                    uploadFile(it)
+                }
+                recyclerImageCount = rvImages.adapter?.itemCount!!
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 toast("Cropping failed: " + result.error)
             }
         }
     }
 
-    override fun setCount(count: String) {
-        this.count = count
-    }
 
 
 }

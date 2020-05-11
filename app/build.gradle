@@ -14,6 +14,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -55,6 +56,12 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxjava:2.$rxJavaVersion"
     //image crop lib
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+    //glide image loading
+    def glideVersion = "4.11.0"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+    // multidex
+    implementation 'com.android.support:multidex:1.0.3'
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     testImplementation 'junit:junit:4.12'
