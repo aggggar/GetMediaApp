@@ -22,15 +22,15 @@ class MainViewModel : ViewModel() {
     fun uploadFile(description : RequestBody,
                    file : MultipartBody.Part){
 
-        ApiClient.getApiInterface().uploadFile(description, file).enqueue(object : Callback<ImageUploadResponse> {
-            override fun onResponse(call: Call<ImageUploadResponse>, response: Response<ImageUploadResponse>) {
-
-            }
-
-            override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
-
-            }
-        })
+//        ApiClient.getApiInterface().uploadFile(description, file).enqueue(object : Callback<ImageUploadResponse> {
+//            override fun onResponse(call: Call<ImageUploadResponse>, response: Response<ImageUploadResponse>) {
+//
+//            }
+//
+//            override fun onFailure(call: Call<ImageUploadResponse>, t: Throwable) {
+//
+//            }
+//        })
     }
 
     fun uploadFileRx(description: RequestBody,

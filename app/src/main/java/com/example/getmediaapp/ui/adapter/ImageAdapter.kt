@@ -33,8 +33,13 @@ class ImageAdapter: RecyclerView.Adapter<ImageAdapter.ViewHold>() {
 
     }
 
-    public fun addToFirst(string: String) {
+    fun addToFirst(string: String) {
         imageList.add(0, string)
+        notifyDataSetChanged()
+    }
+
+    fun clearList(){
+        imageList.clear()
         notifyDataSetChanged()
     }
 

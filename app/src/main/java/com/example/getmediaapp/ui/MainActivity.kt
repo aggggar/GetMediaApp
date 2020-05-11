@@ -53,14 +53,22 @@ class MainActivity : AppCompatActivity(){
         getPermission()
 
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
         rvImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvImages.adapter = ImageAdapter()
+
+        handleClicks()
+
+    }
+
+    private fun handleClicks() {
 
         btnCount.setOnClickListener {
             countStr = etCount.text.toString()
             if (!TextUtils.isEmpty(countStr)){
                 tvSelectedCount.text = "Selected count is : $countStr"
                 count = countStr.toInt()
+                etCount.setText("")
             } else {
                 toast("set count")
             }
@@ -77,6 +85,14 @@ class MainActivity : AppCompatActivity(){
                 toast("Specify Count")
             }
         }
+
+        btnClearAll.setOnClickListener {
+            count = 0
+            recyclerImageCount = 0
+            tvSelectedCount.text = ""
+            (rvImages.adapter as ImageAdapter).clearList()
+        }
+
     }
 
     private fun pickImageIntent() {
@@ -88,15 +104,6 @@ class MainActivity : AppCompatActivity(){
 //        intent.type = "image/*"
 //        intent.action = Intent.ACTION_OPEN_DOCUMENT
 //        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GET_IMAGE_CODE)
-    }
-
-    private fun uploadFile(realPath: String) {
-        val file = File(realPath)
-        val requestFile = file.asRequestBody(contentResolver.getType(Uri.parse(realPath))?.let { it.toMediaTypeOrNull() })
-        val descriptionText = "this is the description"
-        val fileBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
-        val description = RequestBody.create(MultipartBody.FORM, descriptionText)
-        mainViewModel.uploadFile(description, fileBody)
     }
 
     private fun getPermission(){
@@ -137,7 +144,6 @@ class MainActivity : AppCompatActivity(){
                     .start(this)
             }
         }
-
         // handle result of CropImageActivity
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result = CropImage.getActivityResult(data)
@@ -156,6 +162,15 @@ class MainActivity : AppCompatActivity(){
         }
     }
 
+
+    private fun uploadFile(realPath: String) {
+        val file = File(realPath)
+        val requestFile = file.asRequestBody(contentResolver.getType(Uri.parse(realPath))?.let { it.toMediaTypeOrNull() })
+        val descriptionText = "this is the description"
+        val fileBody = MultipartBody.Part.createFormData("file", file.name, requestFile)
+        val description = RequestBody.create(MultipartBody.FORM, descriptionText)
+        mainViewModel.uploadFile(description, fileBody)
+    }
 
 
 }

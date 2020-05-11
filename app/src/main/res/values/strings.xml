@@ -14,4 +14,5 @@
     <string name="set">set</string>
     <string name="add">add</string>
     <string name="count">count</string>
+    <string name="clear_all">clear all</string>
 </resources>
