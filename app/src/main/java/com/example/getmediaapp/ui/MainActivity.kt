@@ -8,19 +8,19 @@ import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.getmediaapp.R
+import com.example.getmediaapp.ui.get_cont.SetCountDialogFragment
 import com.example.getmediaapp.utils.RealPathUtils
-import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
-class MainActivity : AppCompatActivity() {
-
+class MainActivity : AppCompatActivity(), SetCountDialogFragment.SetCount{
 
     companion object {
         private const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123
@@ -39,33 +39,41 @@ class MainActivity : AppCompatActivity() {
         getPermission()
 
          mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+//
+//        btn_pick_image.setOnClickListener {
+//            if (!TextUtils.isEmpty(etImageCount.text)){
+//                pickImageIntent(etImageCount.text.toString())
+//            } else {
+//                Toast.makeText(this, "Specify count", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//
+//        btn_pick_video.setOnClickListener {
+//            val intent = Intent()
+//            intent.type = "video/*"
+//            intent.action = Intent.ACTION_OPEN_DOCUMENT
+//            startActivityForResult(/*Intent.createChooser(intent, "Select Video")*/intent , GET_VIDEO_CODE)
+//        }
+//
+//        btn_pick_audio.setOnClickListener {
+//            val intent = Intent()
+//            intent.type = "audio/*"
+//            intent.action = Intent.ACTION_OPEN_DOCUMENT
+//            startActivityForResult(Intent.createChooser(intent, "Select Audio"), GET_AUDIO_CODE)
+//        }
+//
+//        btnUploadFile.setOnClickListener {
+//            if (!TextUtils.isEmpty(tvRealPath.text)){
+//                uploadFile(tvRealPath.text.toString())
+//            }
+//        }
+    }
 
-        btn_pick_image.setOnClickListener {
-            val intent = Intent()
-            intent.type = "image/*"
-            intent.action = Intent.ACTION_OPEN_DOCUMENT
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), GET_IMAGE_CODE)
-        }
-
-        btn_pick_video.setOnClickListener{
-            val intent = Intent()
-            intent.type = "video/*"
-            intent.action = Intent.ACTION_OPEN_DOCUMENT
-            startActivityForResult(/*Intent.createChooser(intent, "Select Video")*/intent , GET_VIDEO_CODE)
-        }
-
-        btn_pick_audio.setOnClickListener {
-            val intent = Intent()
-            intent.type = "audio/*"
-            intent.action = Intent.ACTION_OPEN_DOCUMENT
-            startActivityForResult(Intent.createChooser(intent, "Select Audio"), GET_AUDIO_CODE)
-        }
-
-        btnUploadFile.setOnClickListener {
-            if (!TextUtils.isEmpty(tvRealPath.text)){
-                uploadFile(tvRealPath.text.toString())
-            }
-        }
+    private fun pickImageIntent(count: String) {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_OPEN_DOCUMENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GET_IMAGE_CODE)
     }
 
     private fun uploadFile(realPath: String) {
@@ -94,6 +102,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when(requestCode){
@@ -101,24 +119,25 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, data?.data.toString())
                 val imageRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
                 Log.e(TAG, "Real Path: $imageRealPath")
-                tvRealPath.text = imageRealPath
             }
-            GET_VIDEO_CODE -> {
-                Log.e(TAG, data?.data.toString())
-                val videoRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
-                Log.e(TAG, "Real Path: $videoRealPath")
-                tvRealPath.text = videoRealPath
-            }
-            GET_AUDIO_CODE -> {
-                Log.e(TAG, data?.data.toString())
-                val audioRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
-                Log.e(TAG, "Real Path: $audioRealPath")
-                tvRealPath.text = audioRealPath
-            }
+//            GET_VIDEO_CODE -> {
+//                Log.e(TAG, data?.data.toString())
+//                val videoRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
+//                Log.e(TAG, "Real Path: $videoRealPath")
+//                tvRealPath.text = videoRealPath
+//            }
+//            GET_AUDIO_CODE -> {
+//                Log.e(TAG, data?.data.toString())
+//                val audioRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
+//                Log.e(TAG, "Real Path: $audioRealPath")
+//                tvRealPath.text = audioRealPath
+//            }
         }
     }
 
-
+    override fun setCount(count: String) {
+        TODO("Not yet implemented")
+    }
 
 
 }

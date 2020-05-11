@@ -6,4 +6,10 @@
     <string name="pick_any_file">Pick Any File</string>
     <string name="real_path">Real Path</string>
     <string name="upload">Upload</string>
+    <string name="no_of_images">No of images</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="set_count">Set Count</string>
+    <string name="set">set</string>
 </resources>
