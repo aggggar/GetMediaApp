@@ -18,6 +18,7 @@ class SetCountDialogFragment : DialogFragment() {
 
     private lateinit var setCount: SetCount
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,6 +38,7 @@ class SetCountDialogFragment : DialogFragment() {
         btnSet.setOnClickListener {
             if (!TextUtils.isEmpty(etCount.text)){
                 setCount.setCount(etCount.text.toString())
+                dismiss()
             }
         }
     }
