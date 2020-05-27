@@ -172,7 +172,7 @@ class MainActivity : AppCompatActivity(){
                 AlertDialog.Builder(this)
                     .setTitle("Crop")
                     .setMessage("You want to crop image?")
-                    .setPositiveButton("yes") { _ , _ ->
+                    .setPositiveButton("yes") { dialog , which ->
                         CropImage.activity(Uri.parse(data?.data.toString()))
                             .start(this)
                     }
