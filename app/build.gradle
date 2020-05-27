@@ -57,6 +57,9 @@ dependencies {
     //image crop lib
     def imageCropperVersion = "2.8.+"
     implementation "com.theartofdev.edmodo:android-image-cropper:$imageCropperVersion"
+    //image compressor
+    def imageCompressorVersion = "3.0.0"
+    implementation "id.zelory:compressor:$imageCompressorVersion"
     //glide image loading
     def glideVersion = "4.11.0"
     implementation "com.github.bumptech.glide:glide:$glideVersion"

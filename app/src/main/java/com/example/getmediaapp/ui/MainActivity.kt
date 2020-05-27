@@ -2,34 +2,47 @@ package com.example.getmediaapp.ui
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.SurfaceTexture
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.getmediaapp.R
 import com.example.getmediaapp.ui.adapter.ImageAdapter
 import com.example.getmediaapp.utils.Extensions.logE
 import com.example.getmediaapp.utils.Extensions.toast
+import com.example.getmediaapp.utils.FileUtil
 import com.example.getmediaapp.utils.RealPathUtils
 import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
+import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(){
 
     companion object {
         private const val MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123
+        private const val MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 124
         private const val GET_AUDIO_CODE = 110
         private const val GET_IMAGE_CODE = 111
         private const val GET_VIDEO_CODE = 112
@@ -40,12 +53,17 @@ class MainActivity : AppCompatActivity(){
     private lateinit var countStr: String
     private var count: Int = 0
     private var recyclerImageCount: Int = 0
+    private var actualImage: File? = null
+    private var compressedImage: File? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        getPermission()
+        getReadPermission()
+        getWritePermission()
+
 
         mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
@@ -102,7 +120,7 @@ class MainActivity : AppCompatActivity(){
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), GET_IMAGE_CODE)
     }
 
-    private fun getPermission(){
+    private fun getReadPermission(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -114,6 +132,23 @@ class MainActivity : AppCompatActivity(){
                 requestPermissions(
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                     Companion.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE
+                )
+            }
+        }
+    }
+
+    private fun getWritePermission(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+                if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                }
+
+                requestPermissions(
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    Companion.MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE
                 )
             }
         }
@@ -134,28 +169,57 @@ class MainActivity : AppCompatActivity(){
         when(requestCode){
             GET_IMAGE_CODE -> {
                 Log.e(TAG, data?.data.toString())
-                val imageRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
-                Log.e(TAG, "Real Path: $imageRealPath")
-                CropImage.activity(Uri.parse(data?.data.toString()))
-                    .start(this)
+                AlertDialog.Builder(this)
+                    .setTitle("Crop")
+                    .setMessage("You want to crop image?")
+                    .setPositiveButton("yes") { _ , _ ->
+                        CropImage.activity(Uri.parse(data?.data.toString()))
+                            .start(this)
+                    }
+                    .setNegativeButton("no") { dialog, which ->
+                        actualImage = FileUtil.from(this, data?.data)
+                        compressImage()
+                        addToRecyclerView(compressedImage?.path)
+                        dialog.dismiss()
+                    }
+                    .show()
+
             }
             // handle result of CropImageActivity
             CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
                 val result = CropImage.getActivityResult(data)
                 if (resultCode == Activity.RESULT_OK) {
                     logE(result.uri.toString())
-                    val realPath = RealPathUtils.getRealPathFromUri(this, result.uri)
-                    realPath?.let {
-                        logE(it)
-                        (rvImages.adapter as ImageAdapter).addToFirst(it)
-                        uploadFile(it)
-                    }
-                    recyclerImageCount = rvImages.adapter?.itemCount!!
+                    actualImage = FileUtil.from(this, result.uri)
+                    compressImage()
+                    addToRecyclerView(compressedImage?.path)
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     logE("Cropping failed: " + result.error)
                 }
             }
         }
+    }
+
+    private fun compressImage() {
+        actualImage?.let {
+            lifecycleScope.launch {
+               compressedImage = Compressor.compress(this@MainActivity, it, coroutineContext) {
+                    resolution(512, 420)
+                    quality(80)
+                    format(Bitmap.CompressFormat.JPEG)
+                    size(2_097_152) // 2 MB
+                }
+            }
+        }
+    }
+
+    private fun addToRecyclerView(realPath: String?) {
+        realPath?.let {
+            logE(it)
+            (rvImages.adapter as ImageAdapter).addToFirst(it)
+            uploadFile(it)
+        }
+        recyclerImageCount = rvImages.adapter?.itemCount!!
     }
 
 
