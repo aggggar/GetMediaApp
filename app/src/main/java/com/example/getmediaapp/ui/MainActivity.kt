@@ -91,15 +91,15 @@ class MainActivity : AppCompatActivity(){
     }
 
     private fun pickImageIntent() {
-        CropImage.activity(null)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setAspectRatio(1, 1)
-            .start(this)
+//        CropImage.activity(null)
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            .setAspectRatio(1, 1)
+//            .start(this)
 
-//        val intent = Intent()
-//        intent.type = "image/*"
-//        intent.action = Intent.ACTION_OPEN_DOCUMENT
-//        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GET_IMAGE_CODE)
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GET_IMAGE_CODE)
     }
 
     private fun getPermission(){
@@ -136,24 +136,24 @@ class MainActivity : AppCompatActivity(){
                 Log.e(TAG, data?.data.toString())
                 val imageRealPath = data?.data?.let { RealPathUtils.getRealPathFromUri(this, it) }
                 Log.e(TAG, "Real Path: $imageRealPath")
-                CropImage.activity(Uri.parse(imageRealPath))
+                CropImage.activity(Uri.parse(data?.data.toString()))
                     .start(this)
             }
-        }
-        // handle result of CropImageActivity
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            val result = CropImage.getActivityResult(data)
-            if (resultCode == Activity.RESULT_OK) {
-                logE(result.uri.toString())
-                val realPath = RealPathUtils.getRealPathFromUri(this, result.uri)
-                realPath?.let {
-                    logE(it)
-                    (rvImages.adapter as ImageAdapter).addToFirst(it)
-                    uploadFile(it)
+            // handle result of CropImageActivity
+            CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE -> {
+                val result = CropImage.getActivityResult(data)
+                if (resultCode == Activity.RESULT_OK) {
+                    logE(result.uri.toString())
+                    val realPath = RealPathUtils.getRealPathFromUri(this, result.uri)
+                    realPath?.let {
+                        logE(it)
+                        (rvImages.adapter as ImageAdapter).addToFirst(it)
+                        uploadFile(it)
+                    }
+                    recyclerImageCount = rvImages.adapter?.itemCount!!
+                } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                    logE("Cropping failed: " + result.error)
                 }
-                recyclerImageCount = rvImages.adapter?.itemCount!!
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                toast("Cropping failed: " + result.error)
             }
         }
     }
