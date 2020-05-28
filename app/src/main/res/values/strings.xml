@@ -15,4 +15,7 @@
     <string name="add">add</string>
     <string name="count">count</string>
     <string name="clear_all">clear all</string>
+    <string name="compare_last_selected">Compare last selected</string>
+    <string name="actual_image">Actual Image</string>
+    <string name="compressed_image">Compressed Image</string>
 </resources>

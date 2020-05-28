@@ -3,17 +3,14 @@ package com.example.getmediaapp.ui
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.SurfaceTexture
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,20 +20,16 @@ import com.example.getmediaapp.ui.adapter.ImageAdapter
 import com.example.getmediaapp.utils.Extensions.logE
 import com.example.getmediaapp.utils.Extensions.toast
 import com.example.getmediaapp.utils.FileUtil
-import com.example.getmediaapp.utils.RealPathUtils
 import com.theartofdev.edmodo.cropper.CropImage
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(){
 
@@ -70,11 +63,11 @@ class MainActivity : AppCompatActivity(){
         rvImages.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvImages.adapter = ImageAdapter()
 
-        handleClicks()
+        onClicks()
 
     }
 
-    private fun handleClicks() {
+    private fun onClicks() {
 
         btnCount.setOnClickListener {
             countStr = etCount.text.toString()
@@ -82,6 +75,7 @@ class MainActivity : AppCompatActivity(){
                 tvSelectedCount.text = "Selected count is : $countStr"
                 count = countStr.toInt()
                 etCount.setText("")
+                btnCount.clearFocus()
             } else {
                 toast("set count")
             }
@@ -105,6 +99,15 @@ class MainActivity : AppCompatActivity(){
             tvSelectedCount.text = ""
             (rvImages.adapter as ImageAdapter).clearList()
         }
+
+
+        btnCompare.setOnClickListener {
+            val intent = Intent(this, ImageComparisionActivity::class.java)
+            intent.putExtra("actual", actualImage)
+            intent.putExtra("compressed", compressedImage)
+            startActivity(intent)
+        }
+
 
     }
 
@@ -178,7 +181,9 @@ class MainActivity : AppCompatActivity(){
                     }
                     .setNegativeButton("no") { dialog, which ->
                         actualImage = FileUtil.from(this, data?.data)
+                        logE("Actual file size: "+FileUtil.fileSizeInKb(actualImage))
                         compressImage()
+                        logE("Compressed file size: "+FileUtil.fileSizeInKb(compressedImage))
                         addToRecyclerView(compressedImage?.path)
                         dialog.dismiss()
                     }
@@ -191,7 +196,9 @@ class MainActivity : AppCompatActivity(){
                 if (resultCode == Activity.RESULT_OK) {
                     logE(result.uri.toString())
                     actualImage = FileUtil.from(this, result.uri)
+                    logE("Actual file size: "+FileUtil.fileSizeInKb(actualImage))
                     compressImage()
+                    logE("Compressed file size: "+FileUtil.fileSizeInKb(compressedImage))
                     addToRecyclerView(compressedImage?.path)
                 } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                     logE("Cropping failed: " + result.error)
@@ -203,12 +210,13 @@ class MainActivity : AppCompatActivity(){
     private fun compressImage() {
         actualImage?.let {
             lifecycleScope.launch {
-               compressedImage = Compressor.compress(this@MainActivity, it, coroutineContext) {
-                    resolution(512, 420)
-                    quality(80)
-                    format(Bitmap.CompressFormat.JPEG)
-                    size(2_097_152) // 2 MB
-                }
+               compressedImage = Compressor.compress(this@MainActivity, it, coroutineContext)
+//               {
+//                    resolution(512, 420)
+//                    quality(50)
+//                    format(Bitmap.CompressFormat.JPEG)
+//                    size(2_097_152) // 2 MB
+//                }
             }
         }
     }

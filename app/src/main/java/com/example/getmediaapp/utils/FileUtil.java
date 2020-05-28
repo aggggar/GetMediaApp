@@ -106,4 +106,18 @@ public class FileUtil {
         }
         return count;
     }
+
+    public static String fileSizeInKb(File file){
+        long fileSizeInBytes = file.length();
+        long fileSizeInKB = fileSizeInBytes / 1024;
+        return fileSizeInKB+" KB";
+    }
+
+    public static String fileSizeInMb(File file){
+        long fileSizeInBytes = file.length();
+        long fileSizeInKB = fileSizeInBytes / 1024;
+        long fileSizeInMB = fileSizeInKB / 1024;
+        return fileSizeInMB+" MB";
+    }
+
 }
